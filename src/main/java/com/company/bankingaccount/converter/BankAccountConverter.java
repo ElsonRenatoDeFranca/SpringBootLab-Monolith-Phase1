@@ -1,8 +1,6 @@
 package com.company.bankingaccount.converter;
 
-import com.company.bankingaccount.entity.AccountType;
 import com.company.bankingaccount.entity.BankAccount;
-import com.company.bankingaccount.vo.AccountTypeVO;
 import com.company.bankingaccount.vo.BankAccountVO;
 import org.springframework.stereotype.Component;
 
@@ -13,23 +11,24 @@ public class BankAccountConverter {
         BankAccountVO bankAccountVO = new BankAccountVO();
 
         if(bankAccount != null) {
-            AccountTypeVO accountTypeVO = convertAccountTypeEntityToVO(bankAccount.getAccountType());
             bankAccountVO.setAccountNumber(bankAccount.getAccountNumber());
-            bankAccountVO.setAccountTypeVO(accountTypeVO);
+            bankAccountVO.setAccountType(bankAccount.getAccountType());
             bankAccountVO.setBalance(bankAccount.getBalance());
         }
         return bankAccountVO;
     }
 
-    private AccountTypeVO convertAccountTypeEntityToVO(AccountType accountType){
-        AccountTypeVO accountTypeVO = new AccountTypeVO();
 
-        if(accountType != null) {
-            accountTypeVO.setAccountTypeId(accountType.getAccountTypeId());
-            accountTypeVO.setAccountTypeDesc(accountType.getAccountTypeDesc());
+    public BankAccount convertVOToEntity(BankAccountVO bankAccountVO){
+        BankAccount bankAccount = new BankAccount();
+
+        if(bankAccount != null){
+            bankAccount.setAccountNumber(bankAccountVO.getAccountNumber());
+            bankAccount.setAccountType(bankAccountVO.getAccountType());
+            bankAccount.setBalance(bankAccountVO.getBalance());
         }
 
-        return accountTypeVO;
+        return bankAccount;
     }
 
 

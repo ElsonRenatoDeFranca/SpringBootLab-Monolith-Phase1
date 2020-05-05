@@ -1,10 +1,9 @@
 package com.company.bankingaccount.controller;
 
 import com.company.bankingaccount.entity.BankAccount;
-import com.company.bankingaccount.exception.AccountBankNotFoundException;
+import com.company.bankingaccount.exception.BankAccountNotFoundException;
 import com.company.bankingaccount.exception.AlreadyRegisteredAccountBankException;
 import com.company.bankingaccount.service.IBankAccountService;
-import com.company.bankingaccount.vo.BankAccountVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,18 +25,19 @@ public class BankAccountController {
 
     @RequestMapping(method= RequestMethod.GET, value = "/accounts")
     @ApiOperation(value="Get all accounts", notes="Get all accounts in the system", nickname="getAllAccounts")
-    public ResponseEntity<List<BankAccountVO>> findAll(){
+    public ResponseEntity<List<BankAccount>> findAll(){
         return new ResponseEntity<>(bankAccountService.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(method=RequestMethod.GET,value="/accounts/{bankAccountNumber}")
     @ApiOperation(value="Get account by accountNumber", notes="Get the accountNumber", nickname="getByAccountNumber")
-    public ResponseEntity<BankAccountVO> findByAccountNumber(@PathVariable String bankAccountNumber){
+    public ResponseEntity<BankAccount> findByAccountNumber(@PathVariable String bankAccountNumber){
+        BankAccount account = new BankAccount();
         try {
-            BankAccountVO accountBankingVO = bankAccountService.findByAccountNumber(bankAccountNumber);
-            return new ResponseEntity<>(accountBankingVO, HttpStatus.OK);
+            account = bankAccountService.findByAccountNumber(bankAccountNumber);
+            return new ResponseEntity<>(account, HttpStatus.OK);
 
-        }catch(AccountBankNotFoundException accountNotFoundEx){
+        }catch(BankAccountNotFoundException accountNotFoundEx){
             return new ResponseEntity<> (HttpStatus.NOT_FOUND);
         }
 
@@ -45,27 +45,26 @@ public class BankAccountController {
 
     @RequestMapping(method=RequestMethod.POST, value="/accounts")
     @ApiOperation(value="Create a new account", notes="Create a new account", nickname="saveAccount")
-    public ResponseEntity<BankAccountVO> saveAccountBanking(@RequestBody BankAccount bankAccount) {
-        BankAccountVO accountBankingVO = new BankAccountVO();
+    public ResponseEntity<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount) {
+        BankAccount account = new BankAccount();
         try {
-            accountBankingVO = bankAccountService.saveAccountBank(bankAccount);
-            return new ResponseEntity<>(accountBankingVO, HttpStatus.OK);
+            account = bankAccountService.saveBankAccount(bankAccount);
+            return new ResponseEntity<>(account, HttpStatus.OK);
 
         } catch (AlreadyRegisteredAccountBankException e) {
-            return new ResponseEntity<> (accountBankingVO, HttpStatus.ALREADY_REPORTED);
+            return new ResponseEntity<> (account, HttpStatus.ALREADY_REPORTED);
         }
     }
 
 
     @RequestMapping(method=RequestMethod.DELETE, value="/accounts/{bankAccountNumber}")
     @ApiOperation(value="Delete account", notes="Delete an existing account", nickname="deleteAccount")
-    public ResponseEntity<BankAccountVO> deleteAccountBanking(@PathVariable String bankAccountNumber) {
-        BankAccountVO accountBankingVO = new BankAccountVO();
+    public ResponseEntity<BankAccount> deleteBankAccount(@PathVariable String bankAccountNumber) {
         try {
-            bankAccountService.deleteAccountBank(bankAccountNumber);
-            return new ResponseEntity<>(accountBankingVO, HttpStatus.OK);
+            bankAccountService.deleteBankAccount(bankAccountNumber);
+            return new ResponseEntity<>(HttpStatus.OK);
 
-        } catch(AccountBankNotFoundException accountNotFoundEx){
+        } catch(BankAccountNotFoundException accountNotFoundEx){
             return new ResponseEntity<> (HttpStatus.NOT_FOUND);
         }
     }
@@ -73,13 +72,12 @@ public class BankAccountController {
 
     @RequestMapping(method=RequestMethod.PUT, value="/accounts/{bankAccountNumber}")
     @ApiOperation(value="Update account", notes="Update an existing account", nickname="UpdateAccount")
-    public ResponseEntity<BankAccountVO> updateAccountBanking(@PathVariable String bankAccountNumber, @RequestBody BankAccount accountBank) {
-        BankAccountVO accountBankingVO = new BankAccountVO();
+    public ResponseEntity<BankAccount> updateBankAccount(@PathVariable String bankAccountNumber, @RequestBody BankAccount accountBank) {
         try {
-            bankAccountService.updateAccountBank(bankAccountNumber,accountBank);
-            return new ResponseEntity<>(accountBankingVO, HttpStatus.OK);
+            BankAccount bankAccount  = bankAccountService.updateBankAccount(bankAccountNumber,accountBank);
+            return new ResponseEntity<>(bankAccount, HttpStatus.OK);
 
-        } catch(AccountBankNotFoundException accountNotFoundEx){
+        } catch(BankAccountNotFoundException accountNotFoundEx){
             return new ResponseEntity<> (HttpStatus.NOT_FOUND);
         }
     }

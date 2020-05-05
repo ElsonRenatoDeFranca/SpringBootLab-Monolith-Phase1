@@ -1,11 +1,13 @@
 package com.company.bankingaccount.vo;
 
+import com.company.bankingaccount.entity.BankAccount;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Set;
 
 
 @Getter
@@ -17,4 +19,5 @@ public class CustomerVO implements Serializable {
     private String firstName;
     private String lastName;
     private String email;
+    private Set<BankAccount> bankAccounts;
 }

@@ -1,15 +1,15 @@
 package com.company.bankingaccount.util;
 
 public enum AccountTypeEnum {
-    CURRENT_INDIVIDUAL(1L),
-    CURRENT_JOINT(2L),
-    SAVINGS_INDIVIDUAL(3L),
-    SAVINGS_JOINT(4L);
+    CURRENT_INDIVIDUAL("Current individual"),
+    CURRENT_JOINT("Current Joint"),
+    SAVINGS_INDIVIDUAL("Savings Individual"),
+    SAVINGS_JOINT("Savings Joint");
 
-    private final Long accountType;
+    private final String accountType;
 
-    AccountTypeEnum(Long accountType) {
+    AccountTypeEnum(String accountType) {
         this.accountType = accountType;
     }
-    private Long accountType() { return accountType; }
+    private String accountType() { return accountType; }
 }

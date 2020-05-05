@@ -1,54 +1,51 @@
 package com.company.bankingaccount.service.impl;
 
-import com.company.bankingaccount.converter.BankAccountConverter;
 import com.company.bankingaccount.dao.IBankAccountRepository;
 import com.company.bankingaccount.entity.BankAccount;
-import com.company.bankingaccount.exception.AccountBankNotFoundException;
+import com.company.bankingaccount.exception.BankAccountNotFoundException;
 import com.company.bankingaccount.exception.AlreadyRegisteredAccountBankException;
 import com.company.bankingaccount.service.IBankAccountService;
-import com.company.bankingaccount.vo.BankAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class BankAccountServiceImpl implements IBankAccountService {
 
     private final IBankAccountRepository accountBankingRepository;
-    private final BankAccountConverter accountBankingConverter;
 
     private static final String ACCOUNT_NOT_FOUND = "Account Banking Not found exception";
     private static final String ACCOUNT_ALREADY_EXISTS = "Account Banking already exists";
 
     @Autowired
-    public BankAccountServiceImpl(IBankAccountRepository accountBankingRepository, BankAccountConverter accountBankingConverter) {
+    public BankAccountServiceImpl(IBankAccountRepository accountBankingRepository) {
         this.accountBankingRepository = accountBankingRepository;
-        this.accountBankingConverter = accountBankingConverter;
     }
 
     @Override
-    public List<BankAccountVO> findAll() {
-        return accountBankingRepository.findAll().stream().map(accountBankingConverter ::convertEntityToVO).
-               collect(Collectors.toList());
+    public List<BankAccount> findAll() {
+        return accountBankingRepository.findAll();
 
     }
 
     @Override
-    public BankAccountVO findByAccountNumber(String bankAccountNumber) throws AccountBankNotFoundException {
-        return accountBankingRepository.findByAccountNumber(bankAccountNumber).map(
-                accountBankingConverter::convertEntityToVO).orElseThrow(() ->
-                new AccountBankNotFoundException(ACCOUNT_NOT_FOUND));
+    public BankAccount findByAccountNumber(String bankAccountNumber) throws BankAccountNotFoundException {
+        BankAccount bankAccount = accountBankingRepository.findByAccountNumber(bankAccountNumber);
+
+        if(bankAccount == null)
+            throw new BankAccountNotFoundException(ACCOUNT_NOT_FOUND);
+
+        return bankAccount;
     }
 
     @Override
-    public BankAccountVO saveAccountBank(BankAccount providedAccountBank) throws AlreadyRegisteredAccountBankException {
+    public BankAccount saveBankAccount(BankAccount providedAccountBank) throws AlreadyRegisteredAccountBankException {
 
-        if(!accountBankAlreadyExists(providedAccountBank.getAccountNumber())){
-            return accountBankingConverter.convertEntityToVO(accountBankingRepository.saveAndFlush(providedAccountBank));
+        if(!bankAccountAlreadyExists(providedAccountBank.getAccountNumber())){
+            return accountBankingRepository.saveAndFlush(providedAccountBank);
         }else{
             throw new AlreadyRegisteredAccountBankException(ACCOUNT_ALREADY_EXISTS);
         }
@@ -56,31 +53,35 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     @Override
-    public void deleteAccountBank(String bankAccountNumber) throws AccountBankNotFoundException {
+    public void deleteBankAccount(String bankAccountNumber) throws BankAccountNotFoundException {
 
-        if(accountBankAlreadyExists(bankAccountNumber)){
+        if(bankAccountAlreadyExists(bankAccountNumber)){
             accountBankingRepository.deleteByAccountNumber(bankAccountNumber);
         }else{
-            throw new AccountBankNotFoundException(ACCOUNT_NOT_FOUND);
+            throw new BankAccountNotFoundException(ACCOUNT_NOT_FOUND);
         }
 
     }
 
     @Override
-    public BankAccountVO updateAccountBank(String bankAccountNumber, BankAccount accountBanking) throws AccountBankNotFoundException {
-        if(accountBankAlreadyExists(bankAccountNumber)) {
-            return accountBankingConverter.convertEntityToVO(accountBankingRepository.saveAndFlush(accountBanking));
+    public BankAccount updateBankAccount(String bankAccountNumber, BankAccount newAccount) throws BankAccountNotFoundException {
+
+        BankAccount existingAccount = accountBankingRepository.findByAccountNumber(bankAccountNumber);
+
+        if(bankAccountAlreadyExists(bankAccountNumber)) {
+            existingAccount.setAccountType(newAccount.getAccountType());
+            existingAccount.setBalance(newAccount.getBalance());
+
+            return accountBankingRepository.saveAndFlush(existingAccount);
         }else{
-            throw new AccountBankNotFoundException(ACCOUNT_NOT_FOUND);
+            throw new BankAccountNotFoundException(ACCOUNT_NOT_FOUND);
         }
 
     }
 
-    private boolean accountBankAlreadyExists(String bankAccountNumber){
-        BankAccountVO alreadyRegisteredAccountBanking = accountBankingRepository.
-                findByAccountNumber(bankAccountNumber).map(accountBankingConverter::convertEntityToVO).get();
-
-        return alreadyRegisteredAccountBanking.getAccountNumber().equals(bankAccountNumber);
+    private boolean bankAccountAlreadyExists(String bankAccountNumber){
+        BankAccount bankAccount = accountBankingRepository.findByAccountNumber(bankAccountNumber);
+        return bankAccount != null;
     }
 
 

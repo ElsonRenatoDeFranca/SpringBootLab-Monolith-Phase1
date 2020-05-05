@@ -14,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class BankAccountVO implements Serializable {
     private String accountNumber;
-    private AccountTypeVO accountTypeVO;
+    private String accountType;
     private double balance;
 }

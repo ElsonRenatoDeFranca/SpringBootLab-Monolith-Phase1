@@ -2,100 +2,96 @@ package com.company.bankingaccount;
 
 
 import com.company.bankingaccount.app.BankAccountApplication;
-import com.company.bankingaccount.dao.IBankAccountRepository;
 import com.company.bankingaccount.dao.ICustomerRepository;
 import com.company.bankingaccount.entity.BankAccount;
 import com.company.bankingaccount.entity.Customer;
+import com.company.bankingaccount.exception.CustomerNotFoundException;
+import com.company.bankingaccount.service.ICustomerService;
 import com.company.bankingaccount.util.AccountTypeEnum;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.transaction.Transactional;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.core.Is.is;
 
 @SpringBootTest(classes = BankAccountApplication.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-//@RunWith(SpringRunner.class)
-//@DataJpaTest
-public class AccountBankServiceImplTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CustomerServiceImplTest {
 
+    @Mock
     private ICustomerRepository customerRepository;
-    private IBankAccountRepository bankAccountRepository;
 
-    @Autowired
-    public AccountBankServiceImplTest(ICustomerRepository customerRepository, IBankAccountRepository bankAccountRepository) {
-        this.bankAccountRepository = bankAccountRepository;
-        this.customerRepository = customerRepository;
+    @InjectMocks
+    private final ICustomerService customerService;
+
+    public CustomerServiceImplTest(ICustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+
+    @Test
+    public void testfindAll(){
+        List<Customer>  customerList = new ArrayList<>();
+        customerList.add(mockCustomer());
+
+        when(customerRepository.findAll()).thenReturn(customerList);
+
+        List customers = customerService.findAll();
+        assertThat(customers, is(CoreMatchers.notNullValue()));
     }
 
     @Test
-    @Order(1)
-    @Transactional
-    public void test_saveAccount(){
-        BankAccount account = new BankAccount();
-        account.setBalance(600);
-        account.setAccountType(AccountTypeEnum.CURRENT_INDIVIDUAL.name());
-        account.setAccountNumber("1001");
+    public void testFindById() throws CustomerNotFoundException {
+        //When
+        when(customerRepository.findBycustomerId(anyString())).thenReturn(mockCustomer());
 
-        bankAccountRepository.save(account);
+        Customer customer = customerService.findByCustomerId("1");
+
+        //Then
+        assertThat(customer, hasProperty("customerId",is(equalTo("1"))));
     }
 
-    @Test
-    @Order(2)
-    @Transactional
-    public void test_addAccountToCustomer() {
-
-        BankAccount account = this.bankAccountRepository.findByAccountNumber("1001");
-
+    private Customer mockCustomer(){
         Customer customer = new Customer();
-        customer.setCustomerId("100");
-        customer.setFirstName("Abraham");
-        customer.setLastName("Lincoln");
-        customer.setEmail("abraham.lincoln@gmail.com");
-        customer.getAccounts().add(account);
+        customer.setEmail("myemail@gmail.com");
+        customer.setFirstName("firstName");
+        customer.setLastName("lastName");
+        customer.setCustomerId("1");
+        customer.setAccounts(mockAccounts());
 
-        customerRepository.save(customer);
+        return customer;
     }
 
-    @Test
-    @Order(3)
-    @Transactional
-    public void test_findByCustomId() {
-        Customer customer = customerRepository.findBycustomerId("1");
-        System.out.println(customer);
+    private Set<BankAccount> mockAccounts(){
+        Set<BankAccount> accounts = new HashSet();
 
-        assertThat(customer, is(notNullValue()));
-        assertThat(customer, hasProperty("accounts", hasSize(greaterThan(0))));
-    }
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setBalance(200);
+        bankAccount.setAccountType(AccountTypeEnum.CURRENT_INDIVIDUAL.name());
+        bankAccount.setAccountNumber("1");
+        accounts.add(bankAccount);
 
-    @Test
-    @Order(4)
-    @Transactional
-    public void test_findAll(){
-        List<Customer> customers = customerRepository.findAll();
+        return accounts;
 
-        customers.stream().forEach(System.out::println);
-
-        assertThat(customers, is(notNullValue()));
-        assertThat(customers, hasSize(greaterThan(0)));
     }
 
 }

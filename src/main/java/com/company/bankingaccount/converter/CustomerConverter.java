@@ -16,4 +16,15 @@ public class CustomerConverter {
         }
         return customerVO;
     }
+
+    public Customer convertVoToEntity(CustomerVO customerVO) {
+        Customer customer = new Customer();
+        if(customerVO != null){
+            customer.setCustomerId(customerVO.getCustomerId());
+            customer.setFirstName(customerVO.getFirstName());
+            customer.setLastName(customerVO.getLastName());
+            customer.setEmail(customerVO.getEmail());
+        }
+        return customer;
+    }
 }

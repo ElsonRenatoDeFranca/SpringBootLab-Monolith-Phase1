@@ -35,13 +35,13 @@ import static org.hamcrest.core.Is.is;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 //@RunWith(SpringRunner.class)
 //@DataJpaTest
-public class AccountBankServiceImplTest {
+public class AccountBankServiceImplIT {
 
     private ICustomerRepository customerRepository;
     private IBankAccountRepository bankAccountRepository;
 
     @Autowired
-    public AccountBankServiceImplTest(ICustomerRepository customerRepository, IBankAccountRepository bankAccountRepository) {
+    public AccountBankServiceImplIT(ICustomerRepository customerRepository, IBankAccountRepository bankAccountRepository) {
         this.bankAccountRepository = bankAccountRepository;
         this.customerRepository = customerRepository;
     }

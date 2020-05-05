@@ -1,10 +1,10 @@
 package com.company.bankingaccount.exception;
 
-public class AccountBankNotFoundException extends Exception {
+public class BankAccountNotFoundException extends Exception {
 
     private static final long serialVersionUID = 987828512143245128L;
 
-    public AccountBankNotFoundException(String message) {
+    public BankAccountNotFoundException(String message) {
         super(message);
     }
 }

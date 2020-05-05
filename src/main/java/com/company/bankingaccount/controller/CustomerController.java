@@ -5,7 +5,6 @@ import com.company.bankingaccount.entity.Customer;
 import com.company.bankingaccount.exception.AlreadyRegisteredCustomerException;
 import com.company.bankingaccount.exception.CustomerNotFoundException;
 import com.company.bankingaccount.service.ICustomerService;
-import com.company.bankingaccount.vo.CustomerVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,16 +25,16 @@ public class CustomerController {
 
     @RequestMapping(method= RequestMethod.GET, value = "/customers")
     @ApiOperation(value="Get all customers", notes="Get all customers in the system", nickname="getAllCustomers")
-    public ResponseEntity<List<CustomerVO>> findAll(){
+    public ResponseEntity<List<Customer>> findAll(){
         return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(method=RequestMethod.GET,value="/customers/{customerId}")
     @ApiOperation(value="Get customer by customerId", notes="Get the customerId", nickname="getByCustomerId")
-    public ResponseEntity<CustomerVO> findByCustomerId(@PathVariable String customerId){
+    public ResponseEntity<Customer> findByCustomerId(@PathVariable String customerId){
         try {
-            CustomerVO customerVO = customerService.findByCustomerId(customerId);
-            return new ResponseEntity<>(customerVO, HttpStatus.OK);
+            Customer customer = customerService.findByCustomerId(customerId);
+            return new ResponseEntity<>(customer, HttpStatus.OK);
 
         }catch(CustomerNotFoundException accountNotFoundEx){
             return new ResponseEntity<> (HttpStatus.NOT_FOUND);
@@ -45,38 +44,23 @@ public class CustomerController {
 
     @RequestMapping(method=RequestMethod.POST, value="/customers")
     @ApiOperation(value="Create a new customer", notes="Create a new customer", nickname="saveCustomer")
-    public ResponseEntity<CustomerVO> saveCustomer(@RequestBody Customer customer) {
-        CustomerVO customerVO = new CustomerVO();
+    public ResponseEntity<Customer> saveCustomer(@RequestBody Customer customer) {
+        Customer cust = new Customer();
         try {
-            customerVO = customerService.saveCustomer(customer);
-            return new ResponseEntity<>(customerVO, HttpStatus.OK);
+            cust = customerService.saveCustomer(customer);
+            return new ResponseEntity<>(cust, HttpStatus.OK);
 
         } catch (AlreadyRegisteredCustomerException e) {
-            return new ResponseEntity<> (customerVO, HttpStatus.ALREADY_REPORTED);
+            return new ResponseEntity<> (cust, HttpStatus.ALREADY_REPORTED);
         }
     }
-
 
     @RequestMapping(method=RequestMethod.DELETE, value="/customers/{customerId}")
     @ApiOperation(value="Delete customer", notes="Delete customer by id", nickname="deleteCustomer")
-    public ResponseEntity<CustomerVO> deleteCustomer(@PathVariable String customerId) {
-        CustomerVO customerVO = new CustomerVO();
+    public ResponseEntity<Customer> deleteCustomer(@PathVariable String customerId) {
         try {
             customerService.deleteCustomer(customerId);
-            return new ResponseEntity<>(customerVO, HttpStatus.OK);
-
-        } catch(CustomerNotFoundException ex){
-            return new ResponseEntity<> (HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @RequestMapping(method=RequestMethod.DELETE, value="/customers/{customerId}/accounts")
-    @ApiOperation(value="Delete accounts from customer", notes="Delete accounts from customer id", nickname="deleteAccountsFromCustomer")
-    public ResponseEntity<CustomerVO> deleteAccountsFromCustomer(@PathVariable String customerId) {
-        CustomerVO customerVO = new CustomerVO();
-        try {
-            customerService.deleteCustomer(customerId);
-            return new ResponseEntity<>(customerVO, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } catch(CustomerNotFoundException ex){
             return new ResponseEntity<> (HttpStatus.NOT_FOUND);
@@ -85,14 +69,14 @@ public class CustomerController {
 
     @RequestMapping(method=RequestMethod.PUT, value="/customers/{customerId}")
     @ApiOperation(value="Update customer", notes="Update customer by id", nickname="UpdateCustomer")
-    public ResponseEntity<CustomerVO> updateCustomer(@PathVariable String customerId, @RequestBody Customer customer) {
-        CustomerVO customerVO = new CustomerVO();
+    public ResponseEntity<Customer> updateCustomer(@PathVariable String customerId, @RequestBody Customer customer) {
+        Customer custom = new Customer();
         try {
-            customerVO = customerService.updateCustomer(customerId,customer);
-            return new ResponseEntity<>(customerVO, HttpStatus.OK);
+            custom = customerService.updateCustomer(customerId,customer);
+            return new ResponseEntity<>(custom, HttpStatus.OK);
 
         } catch(CustomerNotFoundException customerNotFoundEx){
-            return new ResponseEntity<> (HttpStatus.NOT_FOUND);
+            return new ResponseEntity<> (customer,HttpStatus.NOT_FOUND);
         }
     }
 

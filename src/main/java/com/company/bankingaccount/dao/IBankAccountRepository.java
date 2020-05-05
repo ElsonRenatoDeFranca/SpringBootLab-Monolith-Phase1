@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Component
 public interface IBankAccountRepository extends JpaRepository<BankAccount, String> {
-    Optional<BankAccount> findByAccountNumber(String bankAccountNumber);
+    BankAccount findByAccountNumber(String bankAccountNumber);
     void deleteByAccountNumber(String bankAccountNumber);
 }
